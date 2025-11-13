@@ -1,5 +1,78 @@
 name: devops app
 
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    # run all `run:` steps inside the FlaskWebProject1 folder where the app lives
+    defaults:
+      run:
+        working-directory: FlaskWebProject1
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.9
+      - name: List Files
+        run: echo "Moeez is great"
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          python -m pip install flake8
+
+      - name: Lint Check
+        run: |
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+  
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    # only attempt deploy when the required secrets are available
+    if: ${{ secrets.DOCKER_USERNAME && secrets.DOCKER_PASSWORD && secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+
+    steps:
+      - name: Check out branch
+        uses: actions/checkout@v4
+
+      - name: Docker Login
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and Push Image
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/devops:${{ github.sha }} .
+          docker push ${{ secrets.DOCKER_USERNAME }}/devops:${{ github.sha }}
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: 'dv-cute-perch'
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          images: '${{ secrets.DOCKER_USERNAME }}/devops:${{ github.sha }}'
+
+
+
+
+
+
+name: devops app
+
 
 on:
   push:
@@ -21,6 +94,8 @@ jobs:
         working-directory: FlaskWebProject1
     steps:
     - uses: actions/checkout@v4
+
+    on:
     - name: Set up Python 3.9
       uses: actions/setup-python@v3
       with:
