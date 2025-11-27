@@ -32,7 +32,7 @@ jobs:
         with:
           python-version: 3.9
       - name: List Files
-        run: echo "Moeez is not great"
+        run: echo "Moeez is great"
     branches: [ "main", "master" ]
 
 
