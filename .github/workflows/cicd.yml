@@ -23,7 +23,7 @@ jobs:
         with:
           python-version: 3.9
       - name: List Files
-        run: echo "Moeez is great"
+        run: echo "Moeez is shit"
     branches: [ "main", "master" ]
 
     name: Install Dependencies
