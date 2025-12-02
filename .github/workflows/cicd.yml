@@ -51,15 +51,13 @@
 #           app-name: 'dv-cute-perch'
 #           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
 #           images: '${{ secrets.DOCKER_USERNAME }}/devops:${{ github.sha }}'
-
-
 name: Moeez
  
 on:
   push:
-    branches: ["master"]
+    branches: ["main"]
   pull_request:
-    branches: ["master"]
+    branches: ["main"]
  
 permissions:
   id-token: write
